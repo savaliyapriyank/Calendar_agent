@@ -1,0 +1,9 @@
+.env
+credentials.json
+gmail_credentials.json
+token.json
+franciscpd-calendar-mcp-server-1.0.0
+.venv/
+venv/
+__pycache__/
+*.tgz

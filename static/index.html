@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mindlytic — AI Calendar Assistant</title>
+  
+  <!-- Inter & JetBrains Mono Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: ['selector', '[data-theme="dark"]'],
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              400: '#818cf8',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Marked CDN for Markdown Rendering -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/static/style.css?v=3.4">
+</head>
+<body class="h-screen flex flex-col antialiased">
+
+  <!-- Top Minimalist Navigation Header -->
+  <header class="h-14 px-5 sm:px-6 flex items-center justify-between border-b border-[var(--border-subtle)] bg-[var(--bg-header)] backdrop-blur-md shrink-0 z-20 transition-colors">
+    <div class="flex items-center gap-3">
+      <!-- Mindlytic Brand Emblem -->
+      <div class="relative flex items-center justify-center">
+        <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center shadow-md shadow-indigo-500/20 border border-white/10">
+          <i data-lucide="sparkles" class="w-4 h-4 text-white"></i>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <h1 class="text-sm font-semibold tracking-tight text-[var(--text-primary)]">Mindlytic</h1>
+        <span class="text-[10px] font-medium tracking-wide uppercase px-1.5 py-0.5 rounded text-indigo-700 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20">Calendar</span>
+        <span class="inline-flex items-center gap-1.5 text-[11px] font-medium text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-500/20">
+          <span class="relative flex h-2 w-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          </span>
+          Connected
+        </span>
+      </div>
+    </div>
+
+    <!-- Right Controls -->
+    <div class="flex items-center gap-2">
+      <!-- New Chat Button -->
+      <button id="new-chat-btn" class="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg bg-[var(--bg-surface-elevated)] hover:bg-[var(--bg-surface-hover)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition shadow-sm active:scale-95">
+        <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+        <span>New Chat</span>
+      </button>
+
+      <!-- Theme Switcher -->
+      <button id="theme-toggle" class="p-1.5 rounded-lg bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-medium)] transition shadow-sm active:scale-95" title="Toggle Light/Dark Theme">
+        <i data-lucide="moon" class="w-4 h-4" id="theme-icon"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Full-Screen Chat Viewport -->
+  <main class="flex-1 flex flex-col overflow-hidden relative bg-[var(--bg-canvas)]">
+    
+    <!-- Messages Scroll Container -->
+    <div id="chat-scroll-container" class="flex-1 overflow-y-auto px-4 py-6 scroll-smooth">
+      <div class="max-w-3xl mx-auto w-full flex flex-col justify-start min-h-full">
+        
+        <!-- Hero State (visible when chat is empty) -->
+        <div id="hero-state" class="my-auto py-8 sm:py-12 flex flex-col items-center text-center transition-all duration-300">
+          <div class="relative mb-5">
+            <div class="absolute -inset-1.5 rounded-2xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 opacity-30 blur-xl"></div>
+            <div class="relative w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-500 via-purple-600 to-pink-500 flex items-center justify-center shadow-xl shadow-indigo-500/20 border border-white/15">
+              <i data-lucide="sparkles" class="w-7 h-7 text-white"></i>
+            </div>
+          </div>
+          <h2 class="text-2xl sm:text-3xl font-semibold tracking-tight text-[var(--text-primary)] mb-2">
+            Welcome to <span class="bg-gradient-to-r from-indigo-400 via-purple-300 to-pink-400 bg-clip-text text-transparent">Mindlytic</span>
+          </h2>
+          <p class="text-sm text-[var(--text-secondary)] max-w-md leading-relaxed mb-6">
+            Your intelligent calendar agent. Ask about your schedule, discover free time slots, or create meetings with natural language.
+          </p>
+
+          <!-- Interactive Suggestion Chips -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 w-full max-w-lg mt-2">
+            <button type="button" class="suggestion-chip group" data-prompt="What is on my schedule today?">
+              <div class="flex items-center gap-2.5">
+                <div class="w-7 h-7 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 group-hover:bg-indigo-500/20 transition shrink-0">
+                  <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
+                </div>
+                <span class="text-xs text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] transition font-medium text-left">What's on my schedule today?</span>
+              </div>
+            </button>
+
+            <button type="button" class="suggestion-chip group" data-prompt="Find my free time slots for today">
+              <div class="flex items-center gap-2.5">
+                <div class="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 group-hover:bg-emerald-500/20 transition shrink-0">
+                  <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+                </div>
+                <span class="text-xs text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] transition font-medium text-left">Find free slots today</span>
+              </div>
+            </button>
+
+            <button type="button" class="suggestion-chip group" data-prompt="Suggest open slots tomorrow afternoon">
+              <div class="flex items-center gap-2.5">
+                <div class="w-7 h-7 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 group-hover:bg-amber-500/20 transition shrink-0">
+                  <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                </div>
+                <span class="text-xs text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] transition font-medium text-left">Suggest free time tomorrow</span>
+              </div>
+            </button>
+
+            <button type="button" class="suggestion-chip group" data-prompt="What meetings do I have this week?">
+              <div class="flex items-center gap-2.5">
+                <div class="w-7 h-7 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 group-hover:bg-purple-500/20 transition shrink-0">
+                  <i data-lucide="calendar-days" class="w-3.5 h-3.5"></i>
+                </div>
+                <span class="text-xs text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] transition font-medium text-left">Upcoming meetings this week</span>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Chat Messages Container -->
+        <div id="chat-messages" class="space-y-5 w-full pb-4">
+          <!-- Messages dynamically appended here -->
+        </div>
+
+        <!-- Thinking Indicator -->
+        <div id="thinking-indicator" class="hidden my-3 flex items-center gap-3 text-xs text-[var(--text-muted)] animate-fade-in">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center shrink-0 shadow-md shadow-indigo-500/15 border border-white/10">
+            <i data-lucide="sparkles" class="w-4 h-4 text-white"></i>
+          </div>
+          <div class="flex items-center gap-2 bg-[var(--bg-surface)] border border-[var(--border-subtle)] px-4 py-2.5 rounded-2xl shadow-sm">
+            <span class="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-bounce"></span>
+            <span class="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-bounce" style="animation-delay: 0.2s"></span>
+            <span class="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-bounce" style="animation-delay: 0.4s"></span>
+            <span class="ml-1 font-medium text-[var(--text-secondary)]">Mindlytic is thinking...</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Floating Input Container -->
+    <div class="shrink-0 p-4 pb-5 bg-gradient-to-t from-[var(--bg-canvas)] via-[var(--bg-canvas)] to-transparent z-10">
+      <div class="max-w-3xl mx-auto w-full relative">
+
+        <!-- Floating Scroll to Bottom Button -->
+        <button
+          id="scroll-to-bottom-btn"
+          type="button"
+          class="scroll-bottom-btn"
+          title="Scroll to bottom"
+          aria-label="Scroll to bottom"
+        >
+          <i data-lucide="arrow-down" class="w-4 h-4"></i>
+        </button>
+
+        <form id="chat-form" class="relative flex flex-col rounded-2xl transition-all duration-200">
+          
+          <div class="relative flex items-center">
+            <textarea
+              id="chat-input"
+              rows="1"
+              placeholder="Ask Mindlytic anything about your schedule..."
+              class="flex-1 pl-4 pr-12 py-3.5 bg-transparent text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] resize-none outline-none leading-relaxed font-sans"
+            ></textarea>
+
+            <button
+              type="submit"
+              id="send-btn"
+              disabled
+              class="absolute right-2.5 p-2 rounded-xl text-white transition-all duration-150 flex items-center justify-center active:scale-95"
+            >
+              <i data-lucide="arrow-up" class="w-4 h-4"></i>
+            </button>
+          </div>
+
+          <!-- Subtle Micro Footer -->
+          <div class="flex items-center justify-between px-4 pb-2 text-[10px] text-[var(--text-muted)] select-none">
+            <span class="font-medium">Mindlytic AI Calendar</span>
+            <span class="hidden sm:inline">Press <kbd class="px-1.5 py-0.5 rounded bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)] font-mono text-[9px] text-[var(--text-secondary)]">Enter ↵</kbd> to send</span>
+          </div>
+
+        </form>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Client Application Script -->
+  <script src="/static/app.js?v=3.4"></script>
+</body>
+</html>

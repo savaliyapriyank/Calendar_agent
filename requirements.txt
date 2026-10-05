@@ -1,0 +1,21 @@
+# Core Agent & LLM Framework
+langchain>=1.0.0
+langchain-openai>=1.0.0
+langchain-core>=1.0.0
+langgraph>=1.0.0
+
+# Model Context Protocol (MCP) Client
+mcp>=2.2.0
+
+# Environment & Schema Validation
+python-dotenv>=1.0.0
+pydantic>=2.10.0
+
+# Google Calendar & Gmail Auth APIs
+google-auth>=2.30.0
+google-auth-oauthlib>=1.2.0
+google-api-python-client>=2.140.0
+
+# Web UI Server
+fastapi>=0.115.0
+uvicorn>=0.30.0

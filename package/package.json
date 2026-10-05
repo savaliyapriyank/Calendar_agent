@@ -1,0 +1,41 @@
+{
+  "name": "@franciscpd/calendar-mcp-server",
+  "version": "1.0.0",
+  "description": "MCP server for Google Calendar — read, search, create, update, and delete events via AI agents",
+  "type": "module",
+  "bin": { "calendar-mcp-server": "dist/index.js" },
+  "main": "dist/index.js",
+  "files": ["dist"],
+  "engines": { "node": ">=22" },
+  "license": "MIT",
+  "author": "franciscpd",
+  "keywords": ["mcp", "google-calendar", "ai", "calendar", "model-context-protocol"],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/franciscpd/mcp-server-calendar.git"
+  },
+  "bugs": { "url": "https://github.com/franciscpd/mcp-server-calendar/issues" },
+  "homepage": "https://github.com/franciscpd/mcp-server-calendar#readme",
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "start": "node dist/index.js",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "prepublishOnly": "npm run build && npm test"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.27.1",
+    "async-mutex": "^0.5.0",
+    "google-auth-library": "^10.6.2",
+    "googleapis": "^171.4.0",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "@vitest/coverage-v8": "^4.1.0",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.0"
+  }
+}
